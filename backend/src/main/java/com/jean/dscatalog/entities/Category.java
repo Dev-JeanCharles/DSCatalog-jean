@@ -46,6 +46,8 @@ public class Category implements Serializable {
 		this.name = name;
 	}
 
+
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(id);
