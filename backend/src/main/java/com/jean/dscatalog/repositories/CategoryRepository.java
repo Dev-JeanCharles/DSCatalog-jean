@@ -7,7 +7,4 @@ import com.jean.dscatalog.entities.Category;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long>{
-	
-	
-
 }
