@@ -1,7 +1,10 @@
 package com.jean.dscatalog.services;
 
+import com.jean.dscatalog.dto.CategoryDTO;
 import com.jean.dscatalog.dto.ProductDTO;
+import com.jean.dscatalog.entities.Category;
 import com.jean.dscatalog.entities.Product;
+import com.jean.dscatalog.repositories.CategoryRepository;
 import com.jean.dscatalog.repositories.ProductRepository;
 import com.jean.dscatalog.services.exceptions.DatabaseException;
 import com.jean.dscatalog.services.exceptions.ResourceNotFoundException;
@@ -22,6 +25,9 @@ public class ProductService {
 	@Autowired
 	private ProductRepository repository;
 
+	@Autowired
+	private CategoryRepository categoryRepository;
+
 	@Transactional(readOnly = true)
 	public Page<ProductDTO> findAllPaged(PageRequest pageRequest){
 		Page<Product> list = repository.findAll(pageRequest);
@@ -39,15 +45,18 @@ public class ProductService {
 	public ProductDTO insert(ProductDTO dto) {
 
 		Product entity = new Product();
-		//entity.setName(dto.getName());
+		copyDtoToEntity(dto, entity);
 		entity = repository.save(entity);
 		return new ProductDTO(entity);
 	}
+
+
+
 	@Transactional
 	public ProductDTO update(Long id, ProductDTO dto) {
 		try {
 			Product entity = repository.getOne(id);
-			//entity.setName(dto.getName());
+			copyDtoToEntity(dto, entity);
 			entity = repository.save(entity);
 			return new ProductDTO(entity);
 		} catch (EntityNotFoundException e) {
@@ -65,5 +74,22 @@ public class ProductService {
 		catch (DataIntegrityViolationException e ) {
 			throw new DatabaseException("Integrity violation");
 		}
+
+	}
+	private void copyDtoToEntity(ProductDTO dto, Product entity) {
+
+	entity.setName(dto.getName());
+	entity.setDate(dto.getDate());
+	entity.setDescription(dto.getDescription());
+	entity.setPrice(dto.getPrice());
+	entity.setImgUrl(dto.getImgUrl());
+
+	entity.getCategories().clear();
+	for (CategoryDTO catDTO : dto.getCategories()) {
+		Category category = categoryRepository.getOne(catDTO.getId());
+		entity.getCategories().add(category);
+
+	}
+
 	}
 }
